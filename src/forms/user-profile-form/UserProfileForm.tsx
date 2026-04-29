@@ -68,7 +68,7 @@ export default function UserProfileForm({onSave, getUser}: Props) {
                                 <Field data-invalid={fieldState.invalid}>
                                     <FieldLabel>Email</FieldLabel>
                                     <Input
-                                        {...field}
+                                        {...field} disabled
                                         id="email"
                                         placeholder="Teclea tu email"
                                         className='bg-white'
