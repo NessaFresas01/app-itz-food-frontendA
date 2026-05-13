@@ -1,105 +1,93 @@
-//variable con la direccion de backend
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import type { User, UpdateUser, BackEndUser } from './types';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { useAuth0 } from '@auth0/auth0-react';
-import { toast } from 'sonner';
+import { useAuth0 } from "@auth0/auth0-react";
+import { toast } from "sonner";
 
 //funcion para crear un usuario en el backend
-export function useCreateUser(){
+export function useCreateUser() {
     const queryClient = useQueryClient();
     const { getAccessTokenSilently } = useAuth0();
-
-    //peticion al backend para crear un usuario
-    const createUserRequest = async (user: User)=>{
+    //Peticion al backend para crear un usuario
+    const createUserRequest = async (user: User) => {
         const accessToken = await getAccessTokenSilently();
-        const res = await fetch(API_BASE_URL + "/api/user",{
-            method: 'POST',
+        const res = await fetch(API_BASE_URL + "/api/user", {
+            method: "POST",
             headers: {
                 Authorization: 'Bearer ' + accessToken,
-                'Content-Type' : 'application/json'
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(user)
         });
-        if (!res.ok){ //el backend regresa un error 500
+
+        if (!res.ok) { //Regresa un error 500
             console.log(res);
-            throw new Error('Error al crear al usuario')
+            throw new Error("Error al crear el usuario");
         }
-        //si el backend regresa un res = 200 o 201 todo OK c:
+        //Si el backend regresa 200 o 201
         return res.json();
     };
     return useMutation({
-        mutationFn: (user:User)=>createUserRequest(user),
-        onError: (err)=>{
+        mutationFn: (user: User) => createUserRequest(user),
+        onError: (err) => {
             console.log(err);
-            toast.error(err.toString());
-            throw new Error('Error al crear el usuario');
-        },
-        onSuccess: (user)=>{
-            console.log(user)
-            queryClient.invalidateQueries({queryKey : ['user']})
-        },
+            throw new Error("Error al crear el usuario");
+        }, onSuccess: (user) => {
+            console.log(user);
+            queryClient.invalidateQueries({ queryKey: ["user"] });
+        }
     })
-}; // fin de createUser
-
-
-export function useUpdateUser(){
+};
+//funcion para actualizar el perfil del usuario
+export function useUpdateUser() {
     const queryClient = useQueryClient();
     const { getAccessTokenSilently } = useAuth0();
-    //funcion para enviar al backend
-    const updateUserRequest = async ( FormData: UpdateUser)=>{
+    //funcion enviar al backend la actualizacion
+    const updateUserRequest = async (formData: UpdateUser) => {
         const accessToken = await getAccessTokenSilently();
-        const res = await fetch(API_BASE_URL+ '/api/user',{
-            method:'PUT',
+        const res = await fetch(API_BASE_URL + '/api/user', {
+            method: 'PUT',
             headers: {
-                Authorization:'Bearer ' + accessToken,
+                Authorization: 'Bearer ' + accessToken,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(FormData)
-        });
-        //if (!res.ok)
-          //  throw new Error ("Error al actualizar el usuario");
-        if (!res.ok) {
-    const errorText = await res.text();
-    console.error("Backend respondió:", errorText);
-    throw new Error(errorText);
-}
+            body: JSON.stringify(formData)
+        })
+        if (!res.ok) throw new Error("Error al actualizar el usuario");
         return res.json();
-    }; //fin del updateUserRequest
-
-   return useMutation({
-    mutationFn: (formData: UpdateUser)=>updateUserRequest(formData),
-    onError:(err)=>{
-        console.log(err);
-        toast.error(err.toString())
-        throw new Error("Error al actualizar el usuario");
-    },
-    onSuccess: ()=>{
-        toast.success("Perfil de usuario actualizado")
-        queryClient.invalidateQueries({queryKey: ['user']});
     }
-   }) //Fin de return
+    return useMutation({
+        mutationFn: (formData: UpdateUser) => updateUserRequest(formData),
+        onError: (err) => {
+            toast.error("Error al actualizar el usuario");
+            console.log(err);
+            throw new Error("Error al actualizar el usuario")
+        },
+        onSuccess: (user) => {
+            toast.success("Perfil del usuario actualizado");
+            console.log(user);
+            queryClient.invalidateQueries({ queryKey: ["user"] });
+        }
+    })
 }
-
-export function useGetUser(){
-    const {getAccessTokenSilently} = useAuth0();
-    const getUserRequest = async ():Promise<BackEndUser>=>{
+export function useGetUser() {
+    const { getAccessTokenSilently } = useAuth0();
+    const getUserRequest = async (): Promise<BackEndUser> => {
         const accessToken = await getAccessTokenSilently();
-        const res = await fetch(API_BASE_URL + '/api/user',{
+        const res = await fetch(API_BASE_URL + '/api/user', {
             method: 'GET',
             headers: {
                 Authorization: 'Bearer ' + accessToken,
                 'Content-Type': 'application/json'
             }
         });
-        if (!res.ok){
-            throw new Error("Error al obtener los datos del usuario")
+        if (!res.ok) {
+            throw new Error('Error al obtener los datos del usuario')
         }
         return res.json()
-    }//Fin de getUserRequest
-
+    }
     return useQuery({
-        queryKey: ['user'],
+        queryKey: ['users'],
         queryFn: getUserRequest,
-    }); //Fin de return
-}//Fin de useUpdateUser
+    });
+}

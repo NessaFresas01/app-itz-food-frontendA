@@ -1,7 +1,7 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { BrowserRouter as Router } from "react-router"
-import AppRoutes from "./AppRouters"
+import AppRoutes from "./AppRoutes.tsx"
 import './index.css';
 import Auth0ProviderWhitNavigate from "./auth/Auth0ProviderWithNavigate";
 import { QueryClientProvider } from "@tanstack/react-query";
